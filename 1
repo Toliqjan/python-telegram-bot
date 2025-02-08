@@ -1,0 +1,78 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Auto Watch Bot</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>YouTube Auto Watch Bot</h1>
+    <p>This bot will automatically fetch and play videos from the PayUp.Video dashboard.</p>
+    <div id="status">Status: Waiting...</div>
+
+    <script>
+        const statusElement = document.getElementById('status');
+
+        async function fetchAndPlayVideo() {
+            try {
+                // Replace this URL with the actual API or endpoint that provides video data.
+                const response = await axios.get('https://payup.video/api/videos'); 
+
+                if (response.data && response.data.length > 0) {
+                    const video = response.data[0]; // Get the first video in the list.
+
+                    // Update status to indicate a video is playing.
+                    statusElement.textContent = `Status: Playing video - ${video.title}`;
+
+                    // Create an iframe to play the YouTube video.
+                    const iframe = document.createElement('iframe');
+                    iframe.width = '560';
+                    iframe.height = '315';
+                    iframe.src = `https://www.youtube.com/embed/${video.youtubeId}`;
+                    iframe frameborder = '0';
+                    iframe.allow = 'autoplay; encrypted-media';
+                    iframe.allowfullscreen = true;
+
+                    // Add the iframe to the page.
+                    document.body.appendChild(iframe);
+
+                    // Simulate watching the video for its duration.
+                    await new Promise(resolve => setTimeout(resolve, video.duration * 1000));
+
+                    // Remove the iframe after the video has played.
+                    document.body.removeChild(iframe);
+
+                    // Recursive call to fetch and play the next video.
+                    fetchAndPlayVideo();
+                } else {
+                    statusElement.textContent = 'Status: No videos available.';
+                    await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds before retrying.
+                    fetchAndPlayVideo();
+                }
+            } catch (error) {
+                console.error('Error fetching or playing video:', error);
+                statusElement.textContent = 'Status: Error occurred. Retrying...';
+                await new Promise(resolve => setTimeout(resolve, 5000)); // Retry after 5 seconds.
+                fetchAndPlayVideo();
+            }
+        }
+
+        // Start the bot.
+        fetchAndPlayVideo();
+    </script>
+</body>
+</html>
+```
